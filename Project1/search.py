@@ -72,7 +72,30 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def depthFirstSearch(problem: SearchProblem):
+def dfsHelper(problem, curState, fringe, visited, result):
+#     print("Current location is", curState)
+
+    if problem.isGoalState(curState):
+        # print(result)
+        return True
+    if curState in visited:
+        return False
+    visited.add(curState)
+
+    successors = problem.getSuccessors(curState)
+    for item in successors:
+        successor, action, cost = item
+        fringe.append(successor)
+        result.append(action)
+        flag = dfsHelper(problem, successor, fringe, visited, result)
+        if flag:
+            return True
+        fringe.pop()
+        result.pop()
+    visited.remove(curState)
+    return False
+
+def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
 
@@ -87,12 +110,43 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    result = []
+    fringe = []
+    visited = set()
+    flag = dfsHelper(problem, problem.getStartState(), fringe, visited, result)
+    return result
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    buffer = [[]]
+    tmpPath = []
+    fringe = []
+    result = []
+    visited = set()
+    startState = problem.getStartState()
+    fringe.append(startState)
+    flag = False
+    while len(fringe) != 0:
+        curState = fringe.pop(0)
+        curPath = buffer.pop(0)
+        if curState in visited:
+            continue
+        visited.add(curState)
+        if problem.isGoalState(curState):
+            result = curPath.copy()
+            break
+        successors = problem.getSuccessors(curState)
+        for item in successors:
+            successor, action, cost = item
+            if successor in visited:
+                continue
+            visited.add(curState)
+            tmpPath = curPath.copy()
+            tmpPath.append(action)
+            buffer.append(tmpPath)
+            fringe.append(successor)
+    return result
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
